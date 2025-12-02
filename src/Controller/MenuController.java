@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
+
 import Model.Menu;
 
 public class MenuController {
@@ -30,7 +31,7 @@ public class MenuController {
         this.dtm.addColumn("Harga");
         this.dtm.addColumn("Stok");
         this.dtm.addColumn("Kategori");
-        this.dtm.addColumn("Gambar"); // Kolom Baru
+        this.dtm.addColumn("Gambar");
         return this.dtm;
     }
 
