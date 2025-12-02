@@ -214,7 +214,7 @@ public class Customer extends javax.swing.JFrame {
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1100, 70));
 
         panelMenuContainer.setBackground(new java.awt.Color(255, 255, 255));
-        panelMenuContainer.setLayout(new java.awt.GridLayout());
+        panelMenuContainer.setLayout(new java.awt.GridLayout(1, 0));
         scrollMenu.setViewportView(panelMenuContainer);
 
         getContentPane().add(scrollMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 700, 550));
