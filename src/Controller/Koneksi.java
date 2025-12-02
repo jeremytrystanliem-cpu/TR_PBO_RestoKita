@@ -11,7 +11,7 @@ public class Koneksi {
 
     public void config() {
         try {
-            String url = "jdbc:mysql://127.0.0.1/restokita_db"; // Sesuaikan DB
+            String url = "jdbc:mysql://127.0.0.1/restokita_db"; 
             String user = "root";
             String pass = "";
            
