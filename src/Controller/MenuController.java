@@ -60,7 +60,7 @@ public class MenuController {
         }
     }
 
-    // 3. Tambah Menu )
+    // 3. Tambah Menu 
     public boolean insertMenu(String nama, double harga, int stok, String kategori, String gambar) {
         try {
             // Jika gambar kosong, isi default

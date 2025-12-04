@@ -1,11 +1,9 @@
 package View;
 
-// IMPORT LOGIKA & MODEL (PENTING)
 import Controller.UserController;
 import Model.User;
 import javax.swing.JOptionPane;
 
-// IMPORT TAMPILAN
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import java.awt.Image;

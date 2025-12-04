@@ -89,7 +89,7 @@ public class Customer extends javax.swing.JFrame {
             JLabel lblGbr = new JLabel("", JLabel.CENTER);
             try {
                 ImageIcon icon = new ImageIcon("images/" + m.getGambar());
-                Image img = icon.getImage().getScaledInstance(120, 100, Image.SCALE_SMOOTH);
+                Image img = icon.getImage().getScaledInstance(180, 150, Image.SCALE_SMOOTH);
                 lblGbr.setIcon(new ImageIcon(img));
             } catch (Exception e) {
                 lblGbr.setText("No Image");
