@@ -98,6 +98,7 @@ public class Manajer extends javax.swing.JFrame {
         btnRefresh = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(1000, 650));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelHeader.setBackground(new java.awt.Color(230, 126, 34));
@@ -118,9 +119,9 @@ public class Manajer extends javax.swing.JFrame {
                 btnLogoutActionPerformed(evt);
             }
         });
-        panelHeader.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 20, 90, 35));
+        panelHeader.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 20, 90, 35));
 
-        getContentPane().add(panelHeader, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 950, 70));
+        getContentPane().add(panelHeader, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 70));
 
         panelCard2.setBackground(new java.awt.Color(39, 174, 96));
         panelCard2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());

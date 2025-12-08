@@ -14,50 +14,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Customer extends javax.swing.JFrame {
-
+    
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Customer.class.getName());
 
-    // VARIABEL GLOBAL
+    // 1. DATA GLOBAL
     User currentUser; 
     List<DetailTransaksi> keranjang = new ArrayList<>();
     double totalBelanja = 0;
 
+    // 2. CONSTRUCTOR (Dipanggil saat Run)
     public Customer() {
         initComponents();
+        setupFrame(); // Panggil fungsi setup
     }
 
-    // CONSTRUCTOR 
+    // Constructor dengan Data User (Dipanggil dari Login)
     public Customer(User u) {
         initComponents();
         this.currentUser = u;
+        setupFrame();
+        
+        // Tampilkan Nama
+        if(u != null) lblSelamatDatang.setText("Halo, " + u.getNama_lengkap());
+    }
+    
+    // Set up Visual & Data
+    private void setupFrame() {
+        // 1. Agar tidak terpotong (Layout Fix)
+        this.getContentPane().setPreferredSize(new Dimension(1100, 700));
+        this.pack();
         this.setLocationRelativeTo(null);
         
-        // Tampilkan Nama User
-        if(u != null) {
-            lblSelamatDatang.setText("Halo, " + u.getNama_lengkap());
-        } else {
-             lblSelamatDatang.setText("Halo, Tamu");
-        }
-        
-        // Load Logo 
+        // 2. Load Logo Header
         try {
-            ImageIcon iconAsli = new ImageIcon("images/RestoKita.png");
-            if (iconAsli.getIconWidth() > -1) {
-                Image img = iconAsli.getImage();
-                Image imgScale = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-                lblIconLogo.setIcon(new ImageIcon(imgScale));
+            ImageIcon icon = new ImageIcon("images/RestoKita.png");
+            if (icon.getIconWidth() > 0) {
+                Image img = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                lblIconLogo.setIcon(new ImageIcon(img));
                 lblIconLogo.setText("");
             }
-        } catch (Exception e) {
-            System.out.println("Logo header tidak ketemu");
-        }
+        } catch (Exception e) {}
         
-        // Panggil Method Helper 
+        // 3. Siapkan Tabel & Menu
         siapkanTabelKeranjang();
         loadMenuBergambar();
     }
-    
-    // METHOD HELPER 
 
     private void siapkanTabelKeranjang() {
         DefaultTableModel model = new DefaultTableModel();
@@ -66,74 +67,127 @@ public class Customer extends javax.swing.JFrame {
         model.addColumn("Qty");
         model.addColumn("Subtotal");
         tabelKeranjang.setModel(model); 
+        
+        // Atur lebar kolom
+        tabelKeranjang.getColumnModel().getColumn(0).setPreferredWidth(30);
+        tabelKeranjang.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tabelKeranjang.getColumnModel().getColumn(2).setPreferredWidth(40);
+        tabelKeranjang.setRowHeight(25);
     }
 
-    // Logic Menampilkan Gambar Grid
+    // Load Menu ke Tab Kategori
     private void loadMenuBergambar() {
-        panelMenuContainer.removeAll(); // Reset Panel
+        // 1. Bersihkan Panel Lama
+        panelSemua.removeAll();
+        panelMakanan.removeAll();
+        panelMinuman.removeAll();
+        panelSnack.removeAll();
         
+        // 2. Atur Layout Grid (3 Kolom ke samping, baris otomatis)
+        GridLayout layout = new GridLayout(0, 3, 15, 15);
+        panelSemua.setLayout(layout);
+        panelMakanan.setLayout(layout);
+        panelMinuman.setLayout(layout);
+        panelSnack.setLayout(layout);
+
+        // 3. Ambil Data dari Database
         MenuController mc = new MenuController();
-        List<Menu> daftarMenu = mc.getAllMenu(); // Ambil data
-        
-        // Set Grid Layout (Auto Baris, 3 Kolom)
-        panelMenuContainer.setLayout(new GridLayout(0, 3, 10, 10)); 
+        List<Menu> daftarMenu = mc.getAllMenu(); 
 
+        // 4. Masukkan Kartu ke Panel yang Sesuai
         for (Menu m : daftarMenu) {
-            // Buat Kartu
-            JPanel card = new JPanel(new BorderLayout());
-            card.setBackground(Color.WHITE);
-            card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-            card.setPreferredSize(new Dimension(180, 230));
-
-            // Gambar
-            JLabel lblGbr = new JLabel("", JLabel.CENTER);
-            try {
-                ImageIcon icon = new ImageIcon("images/" + m.getGambar());
-                Image img = icon.getImage().getScaledInstance(180, 150, Image.SCALE_SMOOTH);
-                lblGbr.setIcon(new ImageIcon(img));
-            } catch (Exception e) {
-                lblGbr.setText("No Image");
+            
+            // Masukkan ke Tab "Semua"
+            panelSemua.add(createCard(m));
+            
+            // Masukkan ke Tab Kategori (Harus buat kartu baru/copy karena komponen Swing tidak bisa di 2 tempat)
+            String kat = m.getKategori();
+            
+            if (kat.equalsIgnoreCase("Makanan")) {
+                panelMakanan.add(createCard(m));
+            } 
+            else if (kat.equalsIgnoreCase("Minuman")) {
+                panelMinuman.add(createCard(m));
+            } 
+            else if (kat.equalsIgnoreCase("Snack")) {
+                panelSnack.add(createCard(m));
             }
-            
-            // Info Bawah
-            JPanel infoPanel = new JPanel(new GridLayout(3, 1));
-            infoPanel.setBackground(Color.WHITE);
-            
-            JLabel lblNama = new JLabel(m.getNama_menu(), JLabel.CENTER);
-            lblNama.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            
-            JLabel lblHarga = new JLabel("Rp " + (long)m.getHarga(), JLabel.CENTER);
-            lblHarga.setForeground(new Color(230, 126, 34)); // Orange
-            
-            JButton btnAdd = new JButton("TAMBAH");
-            btnAdd.setBackground(new Color(39, 174, 96)); // Hijau
-            btnAdd.setForeground(Color.WHITE);
-            btnAdd.setFocusPainted(false);
-            
-            // Aksi Tombol Tambah
-            btnAdd.addActionListener(e -> tambahKeKeranjang(m));
-
-            infoPanel.add(lblNama);
-            infoPanel.add(lblHarga);
-            infoPanel.add(btnAdd);
-            
-            card.add(lblGbr, BorderLayout.CENTER);
-            card.add(infoPanel, BorderLayout.SOUTH);
-            
-            panelMenuContainer.add(card);
         }
         
-        panelMenuContainer.revalidate();
-        panelMenuContainer.repaint();
+        // 5. Refresh Agar Muncul
+        updateUI();
+    }
+    
+    private void updateUI() {
+        panelSemua.revalidate(); panelSemua.repaint();
+        panelMakanan.revalidate(); panelMakanan.repaint();
+        panelMinuman.revalidate(); panelMinuman.repaint();
+        panelSnack.revalidate(); panelSnack.repaint();
+    }
+    
+    // Membuat Card Menu
+    private JPanel createCard(Menu m) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
+        card.setPreferredSize(new Dimension(180, 240)); 
+
+        // Gambar
+        JLabel lblGbr = new JLabel("", JLabel.CENTER);
+        try {
+            ImageIcon icon = new ImageIcon("images/" + m.getGambar());
+            if(icon.getIconWidth() > 0) {
+                Image img = icon.getImage().getScaledInstance(140, 110, Image.SCALE_SMOOTH);
+                lblGbr.setIcon(new ImageIcon(img));
+            } else {
+                lblGbr.setText("No Image");
+            }
+        } catch (Exception e) {
+            lblGbr.setText("Err Img");
+        }
+        
+        // Panel Bawah (Nama, Harga, Tombol)
+        JPanel info = new JPanel(new GridLayout(3, 1, 0, 5));
+        info.setBackground(Color.WHITE);
+        info.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        
+        JLabel lblNama = new JLabel(m.getNama_menu(), JLabel.CENTER);
+        lblNama.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        
+        JLabel lblHarga = new JLabel("Rp " + (long)m.getHarga(), JLabel.CENTER);
+        lblHarga.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblHarga.setForeground(new Color(230, 126, 34)); // Orange
+        
+        JButton btnAdd = new JButton("TAMBAH");
+        btnAdd.setBackground(new Color(39, 174, 96)); // Hijau
+        btnAdd.setForeground(Color.WHITE);
+        btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btnAdd.setFocusPainted(false);
+        btnAdd.setBorderPainted(false);
+        btnAdd.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Aksi Klik Tombol Tambah
+        btnAdd.addActionListener(e -> tambahKeKeranjang(m));
+
+        info.add(lblNama);
+        info.add(lblHarga);
+        info.add(btnAdd);
+        
+        card.add(lblGbr, BorderLayout.CENTER);
+        card.add(info, BorderLayout.SOUTH);
+        
+        return card;
     }
 
-    // Logic Tambah Item ke Keranjang
+    // Logika Transaksi
     private void tambahKeKeranjang(Menu m) {
         String input = JOptionPane.showInputDialog(this, "Beli berapa porsi " + m.getNama_menu() + "?", "1");
         
         if (input != null && !input.isEmpty()) {
             try {
                 int qty = Integer.parseInt(input);
+                if (qty <= 0) return;
+                
                 if (qty > m.getStok()) {
                     JOptionPane.showMessageDialog(this, "Stok kurang! Sisa: " + m.getStok());
                     return;
@@ -141,18 +195,18 @@ public class Customer extends javax.swing.JFrame {
                 
                 double subtotal = qty * m.getHarga();
                 
-                // Masukkan ke List (Backend)
+                // Tambah ke Data List
                 DetailTransaksi dt = new DetailTransaksi();
                 dt.setMenu_id(m.getId());
                 dt.setJumlah(qty);
                 dt.setSubtotal(subtotal);
                 keranjang.add(dt);
                 
-                // Masukkan ke Tabel (Visual)
+                // Tambah ke Tabel Visual
                 DefaultTableModel model = (DefaultTableModel) tabelKeranjang.getModel();
                 model.addRow(new Object[]{m.getId(), m.getNama_menu(), qty, subtotal});
                 
-                // Update Label Total
+                // Update Total Belanja
                 totalBelanja += subtotal;
                 lblTotal.setText("Rp " + (long)totalBelanja);
                 
@@ -171,18 +225,24 @@ public class Customer extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         lblSelamatDatang = new javax.swing.JLabel();
         btnLogout = new javax.swing.JButton();
-        scrollMenu = new javax.swing.JScrollPane();
-        panelMenuContainer = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         scrollKeranjang = new javax.swing.JScrollPane();
         tabelKeranjang = new javax.swing.JTable();
         lblTotal = new javax.swing.JLabel();
         btnCheckout = new javax.swing.JButton();
         btnHapusItem = new javax.swing.JButton();
+        tabbedMenu = new javax.swing.JTabbedPane();
+        scrollSemua = new javax.swing.JScrollPane();
+        panelSemua = new javax.swing.JPanel();
+        scrollMakanan = new javax.swing.JScrollPane();
+        panelMakanan = new javax.swing.JPanel();
+        scrollMinuman = new javax.swing.JScrollPane();
+        panelMinuman = new javax.swing.JPanel();
+        scrollSnack = new javax.swing.JScrollPane();
+        panelSnack = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
-        setPreferredSize(new java.awt.Dimension(1100, 700));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -212,12 +272,6 @@ public class Customer extends javax.swing.JFrame {
         jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 20, 90, 35));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1100, 70));
-
-        panelMenuContainer.setBackground(new java.awt.Color(255, 255, 255));
-        panelMenuContainer.setLayout(new java.awt.GridLayout(1, 0));
-        scrollMenu.setViewportView(panelMenuContainer);
-
-        getContentPane().add(scrollMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 700, 550));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setText("Keranjang Saya");
@@ -261,6 +315,28 @@ public class Customer extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnHapusItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 590, 320, 30));
+
+        panelSemua.setBackground(new java.awt.Color(255, 255, 255));
+        scrollSemua.setViewportView(panelSemua);
+
+        tabbedMenu.addTab("Semua Menu", scrollSemua);
+
+        panelMakanan.setBackground(new java.awt.Color(255, 255, 255));
+        scrollMakanan.setViewportView(panelMakanan);
+
+        tabbedMenu.addTab("Makanan", scrollMakanan);
+
+        panelMinuman.setBackground(new java.awt.Color(255, 255, 255));
+        scrollMinuman.setViewportView(panelMinuman);
+
+        tabbedMenu.addTab("Minuman", scrollMinuman);
+
+        panelSnack.setBackground(new java.awt.Color(255, 255, 255));
+        scrollSnack.setViewportView(panelSnack);
+
+        tabbedMenu.addTab("Snack", scrollSnack);
+
+        getContentPane().add(tabbedMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 700, 560));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -338,9 +414,16 @@ public class Customer extends javax.swing.JFrame {
     private javax.swing.JLabel lblIconLogo;
     private javax.swing.JLabel lblSelamatDatang;
     private javax.swing.JLabel lblTotal;
-    private javax.swing.JPanel panelMenuContainer;
+    private javax.swing.JPanel panelMakanan;
+    private javax.swing.JPanel panelMinuman;
+    private javax.swing.JPanel panelSemua;
+    private javax.swing.JPanel panelSnack;
     private javax.swing.JScrollPane scrollKeranjang;
-    private javax.swing.JScrollPane scrollMenu;
+    private javax.swing.JScrollPane scrollMakanan;
+    private javax.swing.JScrollPane scrollMinuman;
+    private javax.swing.JScrollPane scrollSemua;
+    private javax.swing.JScrollPane scrollSnack;
+    private javax.swing.JTabbedPane tabbedMenu;
     private javax.swing.JTable tabelKeranjang;
     // End of variables declaration//GEN-END:variables
 }

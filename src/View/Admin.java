@@ -100,6 +100,7 @@ public class Admin extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(236, 240, 241));
         setName("Admin"); // NOI18N
+        setPreferredSize(new java.awt.Dimension(950, 600));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelHeader.setBackground(new java.awt.Color(230, 126, 34));
